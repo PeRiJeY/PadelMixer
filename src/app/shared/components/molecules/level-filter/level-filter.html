@@ -1,0 +1,11 @@
+<mat-form-field appearance="outline" class="level-filter">
+  <mat-label>Filtrar por nivel</mat-label>
+  <mat-select 
+    [ngModel]="selectedLevel()"
+    (ngModelChange)="onFilterChange($event)">
+    <mat-option [value]="null">Todos los niveles</mat-option>
+    <mat-option *ngFor="let nivel of niveles" [value]="nivel.value">
+      {{ nivel.label }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>

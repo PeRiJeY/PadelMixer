@@ -1,0 +1,18 @@
+.level-filter {
+  min-width: 200px;
+}
+
+/* Fondo blanco para el panel desplegable y opciones */
+:host ::ng-deep .mat-mdc-select-panel,
+:host ::ng-deep .mat-select-panel {
+  background-color: white !important;
+}
+
+:host ::ng-deep .mat-mdc-option,
+:host ::ng-deep .mat-option {
+  background-color: white !important;
+}
+
+:host ::ng-deep .mdc-list-item {
+  background-color: white !important;
+}

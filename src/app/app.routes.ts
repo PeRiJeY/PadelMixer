@@ -43,6 +43,10 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES)
+      },
+      {
+        path: 'jugadores',
+        loadChildren: () => import('./features/jugadores/jugadores.routes').then(m => m.JUGADORES_ROUTES)
       }
       
       // TODO: Descomentar cuando se implementen las siguientes features:

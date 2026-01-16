@@ -1,0 +1,141 @@
+<div class="jugador-detail-page">
+  <!-- Header con botón volver -->
+  <div class="page-header">
+    <button mat-icon-button (click)="onBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Detalle del Jugador</h1>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="isLoading()">
+    <mat-spinner></mat-spinner>
+    <p>Cargando información del jugador...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="error-container" *ngIf="error() && !isLoading()">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error() }}</p>
+    <button mat-raised-button color="primary" (click)="onBack()">
+      Volver a la lista
+    </button>
+  </div>
+
+  <!-- Contenido del jugador -->
+  <div class="content" *ngIf="jugador() && !isLoading()">
+    <!-- Card de información personal -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <div class="title-with-chip">
+            <span>{{ jugador()!.nombre }} {{ jugador()!.apellidos }}</span>
+            <app-level-chip [nivel]="jugador()!.nivelJuego"></app-level-chip>
+          </div>
+        </mat-card-title>
+        <mat-card-subtitle>
+          <mat-chip [color]="jugador()!.activo ? 'primary' : 'warn'">
+            {{ jugador()!.activo ? 'Activo' : 'Inactivo' }}
+          </mat-chip>
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="info-grid">
+          <!-- Email -->
+          <div class="info-item">
+            <mat-icon>email</mat-icon>
+            <div class="info-content">
+              <span class="label">Email</span>
+              <span class="value">{{ jugador()!.email }}</span>
+            </div>
+          </div>
+
+          <!-- Teléfono -->
+          <div class="info-item" *ngIf="jugador()!.telefono">
+            <mat-icon>phone</mat-icon>
+            <div class="info-content">
+              <span class="label">Teléfono</span>
+              <span class="value">{{ jugador()!.telefono }}</span>
+            </div>
+          </div>
+
+          <!-- Fecha de nacimiento -->
+          <div class="info-item">
+            <mat-icon>cake</mat-icon>
+            <div class="info-content">
+              <span class="label">Fecha de Nacimiento</span>
+              <span class="value">
+                {{ formatDate(jugador()!.fechaNacimiento) }}
+                ({{ calculateAge(jugador()!.fechaNacimiento) }} años)
+              </span>
+            </div>
+          </div>
+
+          <!-- Nivel de juego -->
+          <div class="info-item">
+            <mat-icon>trending_up</mat-icon>
+            <div class="info-content">
+              <span class="label">Nivel de Juego</span>
+              <span class="value">{{ getNivelConfig(jugador()!.nivelJuego).label }}</span>
+            </div>
+          </div>
+
+          <!-- Fecha de alta -->
+          <div class="info-item">
+            <mat-icon>event</mat-icon>
+            <div class="info-content">
+              <span class="label">Fecha de Alta</span>
+              <span class="value">{{ formatDate(jugador()!.fechaAlta) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider *ngIf="jugador()!.observaciones"></mat-divider>
+
+        <!-- Observaciones -->
+        <div class="observations" *ngIf="jugador()!.observaciones">
+          <h3>
+            <mat-icon>notes</mat-icon>
+            Observaciones
+          </h3>
+          <p>{{ jugador()!.observaciones }}</p>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <button mat-button (click)="onBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Volver
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Card de estadísticas (placeholder para futuras funcionalidades) -->
+    <mat-card class="stats-card">
+      <mat-card-header>
+        <mat-card-title>Estadísticas</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <mat-icon>sports_tennis</mat-icon>
+            <span class="stat-value">0</span>
+            <span class="stat-label">Partidos Jugados</span>
+          </div>
+          <div class="stat-item">
+            <mat-icon>emoji_events</mat-icon>
+            <span class="stat-value">0</span>
+            <span class="stat-label">Torneos</span>
+          </div>
+          <div class="stat-item">
+            <mat-icon>calendar_today</mat-icon>
+            <span class="stat-value">0</span>
+            <span class="stat-label">Reservas</span>
+          </div>
+        </div>
+        <p class="hint">Las estadísticas estarán disponibles en futuras versiones</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

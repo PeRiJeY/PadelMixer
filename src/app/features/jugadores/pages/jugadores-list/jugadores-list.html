@@ -1,0 +1,59 @@
+<div class="jugadores-list-page">
+  <!-- Toolbar -->
+  <mat-toolbar color="primary" class="page-toolbar">
+    <h1>Gestión de Jugadores</h1>
+    <span class="spacer"></span>
+    <button 
+      mat-raised-button 
+      color="accent"
+      *ngIf="isAdmin()"
+      (click)="onAddPlayer()">
+      <mat-icon>add</mat-icon>
+      Nuevo Jugador
+    </button>
+  </mat-toolbar>
+
+  <!-- Filtros -->
+  <div class="filters-section">
+    <app-search-bar
+      placeholder="Buscar por nombre, apellidos o email..."
+      (searchChange)="onSearchChange($event)">
+    </app-search-bar>
+
+    <app-level-filter
+      (filterChange)="onLevelFilterChange($event)">
+    </app-level-filter>
+
+    <button 
+      mat-icon-button 
+      color="primary"
+      (click)="loadJugadores()"
+      matTooltip="Actualizar lista">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <!-- Loading spinner -->
+  <div class="loading-container" *ngIf="isLoading()">
+    <mat-spinner></mat-spinner>
+    <p>Cargando jugadores...</p>
+  </div>
+
+  <!-- Tabla de jugadores -->
+  <div class="table-container" *ngIf="!isLoading()">
+    <app-players-table
+      [jugadores]="filteredJugadores()"
+      [isAdmin]="isAdmin()"
+      (viewPlayer)="onViewPlayer($event)"
+      (editPlayer)="onEditPlayer($event)"
+      (deletePlayer)="onDeletePlayer($event)">
+    </app-players-table>
+
+    <!-- Sin resultados -->
+    <div class="no-results" *ngIf="filteredJugadores().length === 0">
+      <mat-icon>search_off</mat-icon>
+      <p>No se encontraron jugadores</p>
+      <p class="hint">Intenta ajustar los filtros de búsqueda</p>
+    </div>
+  </div>
+</div>

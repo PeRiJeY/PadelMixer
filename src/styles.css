@@ -1,1 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Fondo blanco para los paneles desplegables de Angular Material */
+.mat-mdc-select-panel,
+.mat-select-panel {
+  background-color: white !important;
+}
+
+.mat-mdc-option,
+.mat-option {
+  background-color: white !important;
+}
+
+.mdc-list-item {
+  background-color: white !important;
+}
