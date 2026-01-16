@@ -1,0 +1,94 @@
+<mat-card class="login-form-card">
+  <mat-card-header>
+    <mat-card-title>
+      <h1 class="login-title">Bienvenido a PadelMixer</h1>
+    </mat-card-title>
+    <mat-card-subtitle>Inicia sesión para continuar</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Email Field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input
+          matInput
+          type="email"
+          formControlName="email"
+          placeholder="tu@email.com"
+          autocomplete="email"
+        />
+        <mat-icon matPrefix>email</mat-icon>
+        <mat-error *ngIf="form.get('email')?.hasError('required')">
+          El email es requerido
+        </mat-error>
+        <mat-error *ngIf="form.get('email')?.hasError('email')">
+          Email inválido
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Password Field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Contraseña</mat-label>
+        <input
+          matInput
+          [type]="hidePassword() ? 'password' : 'text'"
+          formControlName="password"
+          placeholder="Tu contraseña"
+          autocomplete="current-password"
+        />
+        <mat-icon matPrefix>lock</mat-icon>
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="togglePasswordVisibility()"
+          [attr.aria-label]="'Mostrar contraseña'"
+        >
+          <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error *ngIf="form.get('password')?.hasError('required')">
+          La contraseña es requerida
+        </mat-error>
+        <mat-error *ngIf="form.get('password')?.hasError('minlength')">
+          Mínimo 6 caracteres
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Remember Me -->
+      <div class="remember-me-container">
+        <mat-checkbox formControlName="rememberMe">
+          Recordarme
+        </mat-checkbox>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage()" class="error-message">
+        <mat-icon>error</mat-icon>
+        <span>{{ errorMessage() }}</span>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        class="full-width submit-button"
+        [disabled]="form.invalid || isLoading()"
+      >
+        <span *ngIf="!isLoading()">Iniciar Sesión</span>
+        <mat-spinner *ngIf="isLoading()" diameter="20"></mat-spinner>
+      </button>
+
+      <!-- Credenciales de prueba -->
+      <div class="test-credentials">
+        <p class="test-title">Credenciales de prueba:</p>
+        <ul class="test-list">
+          <li><strong>Admin:</strong> admin@padelmixer.com / admin123</li>
+          <li><strong>Jugador:</strong> player@padelmixer.com / player123</li>
+          <li><strong>Organizador:</strong> organizer@padelmixer.com / organizer123</li>
+        </ul>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

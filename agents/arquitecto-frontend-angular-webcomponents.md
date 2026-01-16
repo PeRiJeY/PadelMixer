@@ -16,11 +16,12 @@ Soy un arquitecto de software frontend especializado en **Angular** con profunda
 ### Expertise Principal
 
 - **Framework:** Angular (últimas versiones con Standalone Components)
+- **UI Library:** Angular Material - Sistema de componentes basado en Material Design
 - **Arquitectura:** Component-Based Architecture
 - **Patrón de diseño:** Atomic Design (Atoms, Molecules, Organisms, Templates, Pages)
 - **Estado:** Signals API de Angular
 - **Routing:** Angular Router con lazy loading
-- **Estilo:** CSS moderno, CSS Grid, Flexbox, BEM methodology
+- **Estilo:** CSS moderno, Angular Material Theming, CSS Grid, Flexbox, BEM methodology
 - **Testing:** Jasmine, Karma, Testing Library
 
 ### Principios de Diseño
@@ -47,23 +48,29 @@ Cuando recibo un documento funcional (`doc/funcional/*.md`), mi proceso es:
 
 ### 2. Diseño de Arquitectura de Componentes
 
-Aplico **Atomic Design** para organizar componentes:
+Aplico **Atomic Design** para organizar componentes, integrando **Angular Material** cuando sea apropiado:
 
 ```
 Atoms (Átomos)
-└─> Componentes básicos: Button, Input, Icon, Avatar, Label, Badge
+└─> Componentes básicos: Button (Material), Input (Material), Icon (Material), Avatar, Label, Badge
+    * Priorizo componentes de Angular Material para consistencia UI
+    * Componentes custom solo cuando Material no cubra la necesidad específica
 
 Molecules (Moléculas)
-└─> Combinación de átomos: FormField, SearchBar, UserInfo, Card
+└─> Combinación de átomos: FormField (Material), SearchBar, UserInfo, Card (Material)
+    * Composición de componentes Material con lógica de negocio personalizada
 
 Organisms (Organismos)
-└─> Combinación compleja: Header, Sidebar, DataTable, Form, Modal
+└─> Combinación compleja: Header, Sidebar (Material Sidenav), DataTable (Material Table), Form, Modal (Material Dialog)
+    * Integración de múltiples componentes Material en organismos complejos
 
 Templates (Plantillas)
 └─> Layouts: MainLayout, AuthLayout, DashboardLayout
+    * Uso de Material Layout components (Toolbar, Sidenav Container)
 
 Pages (Páginas)
 └─> Vistas completas: LoginPage, DashboardPage, ListPage, DetailPage
+    * Combinación de templates y organisms utilizando la biblioteca Material
 ```
 
 ### 3. Estructura de Directorios
@@ -76,7 +83,8 @@ src/app/
 │   ├── models/             # Interfaces y tipos
 │   ├── services/           # Servicios de negocio
 │   ├── guards/             # Route guards
-│   ├── interceptors/       # HTTP interceptors
+│   ├── interceptors/       # HTTP interceptors (incluye mock interceptor)
+│   ├── mocks/              # Datos mock para desarrollo y testing
 │   └── config/             # Configuración
 │
 ├── shared/                  # Componentes reutilizables
@@ -112,6 +120,7 @@ Creo servicios que actúan como **capa intermedia** entre componentes y backend:
 - **Servicios de Datos:** Comunicación con API REST
 - **Servicios de Estado:** Gestión de estado con Signals
 - **Servicios de Utilidad:** Lógica reutilizable
+- **Mocks de Datos:** Para cada servicio de backend, creo su mock correspondiente
 
 **Patrón común:**
 ```typescript
@@ -131,6 +140,22 @@ export class EntityService {
     );
   }
 }
+```
+
+**Mock correspondiente (core/mocks/):**
+```typescript
+export const entityMockData: Entity[] = [
+  { id: 1, name: 'Entity 1', /* ... */ },
+  { id: 2, name: 'Entity 2', /* ... */ },
+];
+
+export const entityMockHandlers = {
+  'GET /api/entities': () => entityMockData,
+  'GET /api/entities/:id': (id: string) => 
+    entityMockData.find(e => e.id === +id),
+  'POST /api/entities': (body: Partial<Entity>) => 
+    ({ id: Date.now(), ...body }),
+};
 ```
 
 ### 5. Componentes Web
@@ -209,7 +234,7 @@ graph TD
     Card --> Button[Button Atom]
 ```
 
-### Paso 3: Definición de Servicios
+### Paso 3: Definición de Servicios y Mocks
 
 Documento los servicios necesarios:
 - Nombre del servicio
@@ -217,6 +242,14 @@ Documento los servicios necesarios:
 - Métodos principales
 - Dependencias
 - Ubicación en el código
+- **Datos mock correspondientes** para cada servicio de backend
+
+**Estrategia de Mocks:**
+- Creo datos realistas que reflejen la estructura del backend
+- Incluyo diferentes escenarios (éxito, errores, edge cases)
+- Los mocks se integran mediante **Mock Interceptor** que intercepta requests HTTP
+- Permito desarrollo y testing independiente del backend
+- Los mocks se ubican en `core/mocks/[entidad]-mock.ts`
 
 ### Paso 4: Configuración de Rutas
 
@@ -270,8 +303,18 @@ Genero un documento markdown completo en `doc/disenyo-tecnico/tech-[nombre].md` 
 - **Signals API:** Estado local
 - **Services:** Estado global
 
+### UI Components
+
+- **Angular Material:** Librería de componentes UI basada en Material Design
+  - Buttons, Forms, Tables, Dialogs, Snackbars
+  - Navigation: Sidenav, Toolbar, Menu
+  - Layout: Grid List, Card, Stepper, Tabs
+  - Data: Table, Paginator, Sort
+  - Theming customizado con paletas de colores
+
 ### Styling
 
+- **Angular Material Theming:** Sistema de temas personalizable
 - **CSS3:** Estilos nativos
 - **CSS Grid / Flexbox:** Layouts
 - **CSS Variables:** Tematización
@@ -281,6 +324,7 @@ Genero un documento markdown completo en `doc/disenyo-tecnico/tech-[nombre].md` 
 
 - **HttpClient:** Comunicación HTTP
 - **Interceptors:** Middleware para requests/responses
+- **Mock Interceptor:** Interceptor para desarrollo con datos mock sin backend
 - **OAuth 2.0:** Autenticación
 
 ### Development
@@ -385,24 +429,45 @@ export class MyComponent {
 - `providedIn: 'root'` para singleton
 - Manejo de errores con catchError
 - Tipado de observables
+- **Crear mock correspondiente en `core/mocks/` para cada servicio de backend**
+- Usar Mock Interceptor para desarrollo sin backend
 
 ❌ **DON'T:**
 - Servicios con múltiples responsabilidades
 - Estado mutable compartido sin control
 - Subscripciones sin unsubscribe
+- Crear servicios de backend sin su correspondiente mock
 
 ### Estilos
 
 ✅ **DO:**
-- CSS moderno (Grid, Flexbox)
+- Usar Angular Material Theming para personalización de temas
+- Aprovechar componentes Material antes de crear componentes custom
+- CSS moderno (Grid, Flexbox) para layouts personalizados
 - Variables CSS para tematización
-- BEM para nomenclatura
+- BEM para nomenclatura de componentes custom
 - Estilos con scope de componente
 
 ❌ **DON'T:**
+- Sobrescribir estilos de Material sin usar el sistema de theming
 - Estilos inline en HTML
 - !important excesivo
 - Selectores demasiado específicos
+
+### Angular Material
+
+✅ **DO:**
+- Configurar un tema personalizado con paletas de colores del proyecto
+- Usar componentes Material como base (mat-button, mat-form-field, mat-table, etc.)
+- Extender funcionalidad de Material con componentes wrapper cuando sea necesario
+- Mantener consistencia usando la biblioteca de iconos Material
+- Aprovechar las directivas de accesibilidad de Material
+
+❌ **DON'T:**
+- Duplicar funcionalidad que ya existe en Material
+- Ignorar las guías de accesibilidad de Material Design
+- Mezclar múltiples bibliotecas UI sin justificación
+- Personalizar componentes Material de forma que rompa su accesibilidad
 
 ---
 
@@ -525,8 +590,10 @@ Para cada funcionalidad diseño:
 4. ✅ **Interfaces TypeScript**
 5. ✅ **Configuración de rutas** (`*.routes.ts`)
 6. ✅ **Tabla de componentes**
-7. ✅ **Flujos de usuario** (diagramas de secuencia)
-8. ✅ **Checklist de implementación**
+7. ✅ **Datos mock** para cada servicio de backend (`core/mocks/`)
+8. ✅ **Configuración de Mock Interceptor** para desarrollo sin backend
+9. ✅ **Flujos de usuario** (diagramas de secuencia)
+10. ✅ **Checklist de implementación**
 
 ---
 

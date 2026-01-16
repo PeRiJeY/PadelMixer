@@ -1,0 +1,90 @@
+<div class="welcome-page">
+  <div class="welcome-header">
+    <h1 class="welcome-title">
+      ¡Bienvenido{{ currentUser() ? ', ' + currentUser()!.nombre : '' }}!
+    </h1>
+    <p class="welcome-subtitle">
+      Portal de Gestión PadelMixer
+    </p>
+  </div>
+
+  <mat-grid-list cols="3" rowHeight="200px" gutterSize="16" class="dashboard-grid">
+    <!-- Card: Próximos Partidos -->
+    <mat-grid-tile>
+      <mat-card class="dashboard-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="primary">sports_tennis</mat-icon>
+          <mat-card-title>Próximos Partidos</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stat-number">5</div>
+          <p class="stat-label">Partidos programados</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">Ver Todos</button>
+        </mat-card-actions>
+      </mat-card>
+    </mat-grid-tile>
+
+    <!-- Card: Jugadores Activos -->
+    <mat-grid-tile>
+      <mat-card class="dashboard-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="accent">group</mat-icon>
+          <mat-card-title>Jugadores</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stat-number">24</div>
+          <p class="stat-label">Jugadores activos</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">Gestionar</button>
+        </mat-card-actions>
+      </mat-card>
+    </mat-grid-tile>
+
+    <!-- Card: Torneos -->
+    <mat-grid-tile>
+      <mat-card class="dashboard-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="warn">emoji_events</mat-icon>
+          <mat-card-title>Torneos</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stat-number">3</div>
+          <p class="stat-label">Torneos activos</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">Ver Todos</button>
+        </mat-card-actions>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+
+  <!-- Información adicional -->
+  <div class="info-section">
+    <mat-card>
+      <mat-card-header>
+        <mat-icon mat-card-avatar>info</mat-icon>
+        <mat-card-title>Portal Base Implementado</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>
+          Este es el portal base de PadelMixer. La estructura principal ha sido implementada 
+          con Angular 17+ y Angular Material.
+        </p>
+        <ul>
+          <li>✅ Sistema de autenticación con JWT</li>
+          <li>✅ Layout responsive con Header y Sidebar</li>
+          <li>✅ Guards para protección de rutas</li>
+          <li>✅ Interceptores HTTP configurados</li>
+          <li>✅ Sistema de mocks para desarrollo independiente</li>
+          <li>✅ Gestión de estado con Signals</li>
+        </ul>
+        <p>
+          <strong>Rol actual:</strong> {{ currentUser()?.role || 'No disponible' }}
+        </p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

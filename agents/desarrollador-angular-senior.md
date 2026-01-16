@@ -11,19 +11,20 @@
 
 ## Perfil Profesional
 
-Soy un desarrollador senior especializado en **Angular** con amplia experiencia en la implementación de aplicaciones web modernas. Mi misión es **transformar diseños técnicos en código funcional** siguiendo las especificaciones del **Arquitecto Frontend Angular** y aplicando las mejores prácticas de desarrollo.
+Soy un desarrollador senior especializado en **Angular** y **Angular Material** con amplia experiencia en la implementación de aplicaciones web modernas. Mi misión es **transformar diseños técnicos en código funcional** siguiendo las especificaciones del **Arquitecto Frontend Angular** y aplicando las mejores prácticas de desarrollo.
 
 ### Expertise Principal
 
 - **Framework:** Angular 17+ (Standalone Components, Signals API)
+- **UI Library:** Angular Material 17+ (Components, Theming, CDK)
 - **Lenguaje:** TypeScript (strict mode)
 - **Arquitectura:** Component-Based, Atomic Design
 - **Estado:** Angular Signals, RxJS
 - **Testing:** Jasmine, Karma, Angular Testing Library
 - **HTTP:** HttpClient, Interceptors
 - **Routing:** Angular Router, Guards
-- **Formularios:** Reactive Forms, Template-driven Forms
-- **Estilos:** CSS3, CSS Grid, Flexbox, BEM methodology
+- **Formularios:** Reactive Forms, Template-driven Forms, Material Form Controls
+- **Estilos:** CSS3, CSS Grid, Flexbox, BEM methodology, Material Theming
 - **Herramientas:** Angular CLI, NPM, Git
 
 ### Principios de Desarrollo
@@ -161,6 +162,19 @@ src/app/features/jugadores/
 
 ## Comandos que Utilizo
 
+### Instalación y Configuración de Angular Material
+```bash
+# Instalar Angular Material
+ng add @angular/material
+
+# Seleccionar tema predefinido durante la instalación
+# - Indigo/Pink (predeterminado)
+# - Deep Purple/Amber
+# - Pink/Blue Grey
+# - Purple/Green
+# - Custom (personalizado)
+```
+
 ### Creación de Componentes
 ```bash
 # Crear componente standalone
@@ -171,6 +185,15 @@ ng generate component features/jugadores/pages/jugadores-list --standalone
 
 # Crear componente shared
 ng generate component shared/components/atoms/button --standalone
+
+# Generar componente con Angular Material (tabla)
+ng generate @angular/material:table features/jugadores/components/jugadores-table
+
+# Generar componente con Angular Material (navegación)
+ng generate @angular/material:navigation shared/components/organisms/nav
+
+# Generar componente con Angular Material (dashboard)
+ng generate @angular/material:dashboard features/dashboard/pages/home
 ```
 
 ### Creación de Servicios
@@ -416,6 +439,277 @@ export interface CreateJugadorDto {
 
 export interface UpdateJugadorDto extends Partial<CreateJugadorDto> {
   activo?: boolean;
+}
+```
+
+### Componente con Angular Material (Formulario)
+
+**jugador-form.component.ts**
+```typescript
+import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
+import { JugadoresService } from '../../services/jugadores.service';
+
+@Component({
+  selector: 'app-jugador-form',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatCardModule
+  ],
+  templateUrl: './jugador-form.component.html',
+  styleUrl: './jugador-form.component.css'
+})
+export class JugadorFormComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly jugadoresService = inject(JugadoresService);
+
+  public readonly loadingSignal = signal<boolean>(false);
+  public readonly form: FormGroup;
+  
+  public readonly niveles: NivelJugador[] = ['principiante', 'intermedio', 'avanzado'];
+
+  constructor() {
+    this.form = this.fb.group({
+      nombre: ['', [Validators.required, Validators.minLength(2)]],
+      apellidos: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
+      nivel: ['principiante', Validators.required]
+    });
+  }
+
+  public onSubmit(): void {
+    if (this.form.valid) {
+      this.loadingSignal.set(true);
+      const jugador: CreateJugadorDto = this.form.value;
+      
+      this.jugadoresService.create(jugador).subscribe({
+        next: () => {
+          this.loadingSignal.set(false);
+          this.form.reset();
+        },
+        error: () => this.loadingSignal.set(false)
+      });
+    }
+  }
+}
+```
+
+**jugador-form.component.html**
+```html
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Nuevo Jugador</mat-card-title>
+  </mat-card-header>
+  
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="nombre" placeholder="Juan">
+        <mat-error *ngIf="form.get('nombre')?.hasError('required')">
+          El nombre es requerido
+        </mat-error>
+        <mat-error *ngIf="form.get('nombre')?.hasError('minlength')">
+          Mínimo 2 caracteres
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Apellidos</mat-label>
+        <input matInput formControlName="apellidos" placeholder="García López">
+        <mat-error *ngIf="form.get('apellidos')?.hasError('required')">
+          Los apellidos son requeridos
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" placeholder="juan@example.com">
+        <mat-error *ngIf="form.get('email')?.hasError('required')">
+          El email es requerido
+        </mat-error>
+        <mat-error *ngIf="form.get('email')?.hasError('email')">
+          Email inválido
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nivel</mat-label>
+        <mat-select formControlName="nivel">
+          <mat-option *ngFor="let nivel of niveles" [value]="nivel">
+            {{ nivel | titlecase }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button 
+        mat-raised-button 
+        color="primary" 
+        type="submit"
+        [disabled]="form.invalid || loadingSignal()">
+        {{ loadingSignal() ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </form>
+  </mat-card-content>
+</mat-card>
+```
+
+### Componente con Angular Material (Tabla)
+
+**jugadores-list.component.ts**
+```typescript
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatChipsModule } from '@angular/material/chips';
+import { JugadoresStateService } from '../../services/jugadores-state.service';
+
+@Component({
+  selector: 'app-jugadores-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatChipsModule
+  ],
+  templateUrl: './jugadores-list.component.html',
+  styleUrl: './jugadores-list.component.css'
+})
+export class JugadoresListComponent implements OnInit {
+  private readonly jugadoresState = inject(JugadoresStateService);
+
+  public readonly jugadores = this.jugadoresState.jugadores;
+  public readonly loading = this.jugadoresState.loading;
+  
+  public readonly displayedColumns: string[] = ['nombre', 'email', 'nivel', 'activo', 'acciones'];
+
+  public ngOnInit(): void {
+    this.jugadoresState.loadJugadores();
+  }
+
+  public onEdit(id: string): void {
+    console.log('Editar jugador:', id);
+  }
+
+  public onDelete(id: string): void {
+    console.log('Eliminar jugador:', id);
+  }
+}
+```
+
+**jugadores-list.component.html**
+```html
+<div class="jugadores-list">
+  <h2>Listado de Jugadores</h2>
+
+  <div *ngIf="loading()" class="loading-container">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <table mat-table [dataSource]="jugadores()" *ngIf="!loading()" class="mat-elevation-z8">
+    <!-- Columna Nombre -->
+    <ng-container matColumnDef="nombre">
+      <th mat-header-cell *matHeaderCellDef>Nombre</th>
+      <td mat-cell *matCellDef="let jugador">
+        {{ jugador.nombre }} {{ jugador.apellidos }}
+      </td>
+    </ng-container>
+
+    <!-- Columna Email -->
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef>Email</th>
+      <td mat-cell *matCellDef="let jugador">{{ jugador.email }}</td>
+    </ng-container>
+
+    <!-- Columna Nivel -->
+    <ng-container matColumnDef="nivel">
+      <th mat-header-cell *matHeaderCellDef>Nivel</th>
+      <td mat-cell *matCellDef="let jugador">
+        <mat-chip [color]="jugador.nivel === 'avanzado' ? 'primary' : 'accent'">
+          {{ jugador.nivel | titlecase }}
+        </mat-chip>
+      </td>
+    </ng-container>
+
+    <!-- Columna Activo -->
+    <ng-container matColumnDef="activo">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let jugador">
+        <mat-chip [color]="jugador.activo ? 'primary' : 'warn'">
+          {{ jugador.activo ? 'Activo' : 'Inactivo' }}
+        </mat-chip>
+      </td>
+    </ng-container>
+
+    <!-- Columna Acciones -->
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let jugador">
+        <button mat-icon-button color="primary" (click)="onEdit(jugador.id)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="onDelete(jugador.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>
+```
+
+### Tema Personalizado de Angular Material
+
+**styles.css** (global)
+```css
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+/* Definir paleta personalizada */
+$padel-primary: mat.define-palette(mat.$indigo-palette);
+$padel-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+$padel-warn: mat.define-palette(mat.$red-palette);
+
+/* Crear tema */
+$padel-theme: mat.define-light-theme((
+  color: (
+    primary: $padel-primary,
+    accent: $padel-accent,
+    warn: $padel-warn,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0,
+));
+
+/* Aplicar tema */
+@include mat.all-component-themes($padel-theme);
+
+/* Estilos globales */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 ```
 

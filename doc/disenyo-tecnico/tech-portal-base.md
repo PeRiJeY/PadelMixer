@@ -1,31 +1,62 @@
 # Diseño Técnico: Portal Base PadelMixer
 
-**Documento de Diseño Técnico v1.0**  
-**Fecha:** 16/01/2026  
-**Arquitecto:** Sistema de Diseño Angular - Web Components  
-**Basado en:** `doc/funcional/portal-base.md`
+**Versión**: 1.0  
+**Fecha**: 16/01/2026  
+**Estado**: Diseño Inicial  
+**Proyecto**: PadelMixer  
+**Arquitecto**: Arquitecto Frontend Angular - Especialista en Web Components
+
+---
+
+## Tabla de Contenidos
+
+1. [Resumen Ejecutivo](#1-resumen-ejecutivo)
+2. [Arquitectura de Componentes](#2-arquitectura-de-componentes)
+3. [Estructura de Directorios](#3-estructura-de-directorios)
+4. [Componentes Detallados](#4-componentes-detallados)
+5. [Servicios y Capa de Backend](#5-servicios-y-capa-de-backend)
+6. [Modelos de Datos](#6-modelos-de-datos)
+7. [Configuración de Rutas](#7-configuración-de-rutas)
+8. [Guards y Seguridad](#8-guards-y-seguridad)
+9. [Interceptores HTTP](#9-interceptores-http)
+10. [Mocks y Desarrollo](#10-mocks-y-desarrollo)
+11. [Flujos de Usuario](#11-flujos-de-usuario)
+12. [Estilos y Temas](#12-estilos-y-temas)
+13. [Testing Strategy](#13-testing-strategy)
+14. [Checklist de Implementación](#14-checklist-de-implementación)
 
 ---
 
 ## 1. Resumen Ejecutivo
 
-Este documento describe el diseño técnico de la implementación del portal base de PadelMixer, incluyendo el sistema de autenticación, la estructura de layout principal y la navegación básica.
+### 1.1. Propósito del Documento
+Este documento define la arquitectura técnica del **Portal Base de PadelMixer**, estableciendo la estructura fundamental de componentes, servicios, rutas y modelos de datos que servirán como base para todas las funcionalidades futuras del portal.
 
-### 1.1. Alcance del Diseño
+### 1.2. Alcance del Diseño
+- ✅ **Layout Principal**: Estructura con Header, Sidebar y Content Area
+- ✅ **Sistema de Autenticación**: Guards, interceptores y gestión de sesiones
+- ✅ **Pantallas Core**: Login y Dashboard de Bienvenida
+- ✅ **Servicios Base**: Con arquitectura de mocks para desarrollo independiente
+- ✅ **Configuración de Rutas**: Con lazy loading y protección
+- ✅ **Modelos de Datos**: Interfaces TypeScript fuertemente tipadas
+- ✅ **Integración Angular Material**: Sistema de componentes UI consistente
 
-**Funcionalidades a implementar:**
-- ✅ Sistema de autenticación con OAuth 2.0
-- ✅ Layout principal con tres zonas (cabecera, menú lateral, contenido)
-- ✅ Pantalla de login
-- ✅ Pantalla de bienvenida (dashboard inicial)
-- ✅ Capa de servicios para comunicación con backend
-- ✅ Guards de rutas para protección de acceso
-- ✅ Navegación básica
+### 1.3. Stack Tecnológico
+- **Framework**: Angular 17+ (Standalone Components)
+- **Lenguaje**: TypeScript 5+
+- **UI Library**: Angular Material 17+
+- **Estado**: Angular Signals API
+- **Routing**: Angular Router con lazy loading
+- **HTTP**: HttpClient con interceptores
+- **Autenticación**: JWT-based con localStorage
+- **Testing**: Jasmine + Karma
 
-**Backend:**
-- API REST securizada con OAuth 2.0
-- Base URL: `http://URL_BACKEND/api`
-- Endpoints protegidos que requieren token de autorización
+### 1.4. Principios de Diseño Aplicados
+1. **Component-Based Architecture**: Todo es un componente web reutilizable
+2. **Atomic Design**: Organización jerárquica (Atoms → Molecules → Organisms → Templates → Pages)
+3. **Separation of Concerns**: Clara separación entre presentación, lógica y datos
+4. **Material Design First**: Priorizar componentes de Angular Material antes que custom
+5. **Mock-Driven Development**: Desarrollo independiente del backend mediante sistema de mocks
 
 ---
 
@@ -35,472 +66,257 @@ Este documento describe el diseño técnico de la implementación del portal bas
 
 ```mermaid
 graph TD
-    A[App Root] --> B{Auth Guard}
-    B -->|No autenticado| C[Auth Layout]
-    B -->|Autenticado| D[Main Layout]
-    
-    C --> E[Login Page]
-    
-    D --> F[Header Component]
-    D --> G[Sidebar Component]
-    D --> H[Content Area]
-    
-    H --> I[Welcome Page]
-    H --> J[Otras páginas...]
-    
-    E --> K[Login Form]
-    K --> L[Auth Service]
-    
-    I --> M[Welcome Widgets]
-    
-    L --> N[HTTP Interceptor]
-    N --> O[Backend API]
-    
-    F --> P[User Menu]
-    F --> Q[Notifications]
-    
-    G --> R[Navigation Items]
-    
-    style B fill:#ff9800
-    style L fill:#4caf50
-    style N fill:#2196f3
-```
-
-### 2.2. Jerarquía de Componentes Web
-
-Siguiendo el principio de **"todo es un componente web"**, la arquitectura se basa en composición:
-
-```mermaid
-graph TD
     App[App Component] --> Router[Router Outlet]
+    Router --> AuthLayout[Auth Layout]
+    Router --> MainLayout[Main Layout]
     
-    Router --> Auth[Auth Layout]
-    Router --> Main[Main Layout]
+    AuthLayout --> LoginPage[Login Page]
     
-    Auth --> LoginPage[Login Page]
-    LoginPage --> LoginForm[Login Form]
-    LoginForm --> FormField1[Form Field: Email]
-    LoginForm --> FormField2[Form Field: Password]
-    LoginForm --> Button1[Button: Login]
-    
-    FormField1 --> Input1[Input]
-    FormField1 --> Icon1[Icon]
-    FormField2 --> Input2[Input]
-    FormField2 --> Icon2[Icon]
-    
-    Main --> Header[Header]
-    Main --> Sidebar[Sidebar]
-    Main --> Content[Content Area]
-    
-    Header --> Logo[Logo]
-    Header --> UserInfo[User Info]
-    Header --> NotifBadge[Notification Badge]
-    
-    UserInfo --> Avatar1[Avatar]
-    
-    Sidebar --> NavMenu[Navigation Menu]
-    NavMenu --> NavItem1[Nav Item]
-    NavMenu --> NavItem2[Nav Item]
+    MainLayout --> Header[Header Organism]
+    MainLayout --> Sidebar[Sidebar Organism]
+    MainLayout --> Content[Content Area - router-outlet]
     
     Content --> WelcomePage[Welcome Page]
-    WelcomePage --> WelcomeWidget[Welcome Widget]
-    WelcomePage --> QuickActions[Quick Actions]
+    
+    Header --> UserInfo[User Info Molecule]
+    Header --> NotificationBell[Notification Bell Molecule]
+    
+    UserInfo --> Avatar[Avatar Atom]
+    UserInfo --> MatMenu[Material Menu]
+    
+    Sidebar --> NavMenu[Nav Menu Organism]
+    NavMenu --> NavItem[Nav Item Molecule]
+    NavItem --> MatIcon[Material Icon]
+    
+    WelcomePage --> QuickStats[Quick Stats]
     WelcomePage --> RecentActivity[Recent Activity]
+    WelcomePage --> QuickActions[Quick Actions]
     
     style App fill:#e1f5ff
-    style Main fill:#fff3e0
-    style Auth fill:#f3e5f5
+    style AuthLayout fill:#fff3e0
+    style MainLayout fill:#f3e5f5
+    style Header fill:#e8f5e9
+    style Sidebar fill:#fff9c4
+    style Content fill:#fce4ec
 ```
+
+### 2.2. Jerarquía Atomic Design
+
+#### **Atoms (Átomos)**
+Componentes básicos, principalmente de Angular Material:
+- `mat-button` - Botones de acción
+- `mat-icon` - Iconos Material
+- `mat-form-field` - Campos de formulario
+- `mat-input` - Inputs de texto
+- `mat-badge` - Indicadores numéricos
+- `Avatar` (custom) - Avatar circular de usuario
+
+#### **Molecules (Moléculas)**
+Combinaciones funcionales de átomos:
+- `UserInfo` - Avatar + nombre + menú desplegable
+- `NotificationBell` - Icono + badge + menú de notificaciones
+- `NavItem` - Icono + texto + estado activo + ripple effect
+- `DashboardCard` - Card Material con contenido específico
+
+#### **Organisms (Organismos)**
+Componentes complejos con lógica:
+- `Header` - Cabecera principal fija
+- `Sidebar` - Menú lateral de navegación
+- `NavMenu` - Lista completa de navegación con items
+
+#### **Templates (Plantillas)**
+Layouts estructurales:
+- `MainLayout` - Layout principal (Header + Sidebar + Content)
+- `AuthLayout` - Layout para autenticación (centrado, sin header/sidebar)
+
+#### **Pages (Páginas)**
+Vistas completas con datos:
+- `LoginPage` - Pantalla de autenticación
+- `WelcomePage` - Dashboard de bienvenida
 
 ---
 
-## 3. Estructura de Directorios Completa
+## 3. Estructura de Directorios
 
 ```
 src/app/
-├── core/                                    # Servicios singleton y configuración
-│   ├── models/
-│   │   ├── user.model.ts
-│   │   ├── auth-response.model.ts
-│   │   ├── navigation-item.model.ts
-│   │   └── index.ts
-│   ├── services/
-│   │   ├── auth.service.ts
-│   │   ├── api.service.ts
-│   │   ├── storage.service.ts
-│   │   └── navigation.service.ts
+│
+├── core/                                    # Servicios singleton y lógica central
+│   ├── config/
+│   │   └── app.config.ts                   # Configuración global de la app
+│   │
 │   ├── guards/
-│   │   ├── auth.guard.ts
-│   │   └── no-auth.guard.ts
+│   │   ├── auth.guard.ts                   # Guard para rutas protegidas
+│   │   └── no-auth.guard.ts                # Guard para rutas públicas (ej: login)
+│   │
 │   ├── interceptors/
-│   │   ├── auth.interceptor.ts
-│   │   └── error.interceptor.ts
-│   └── config/
-│       └── api.config.ts
+│   │   ├── auth.interceptor.ts             # Inyección automática de JWT token
+│   │   ├── error.interceptor.ts            # Manejo global de errores HTTP
+│   │   └── mock.interceptor.ts             # Interceptor para simular backend con mocks
+│   │
+│   ├── models/
+│   │   ├── user.model.ts                   # Interfaces: User, UserProfile, UserRole, etc.
+│   │   ├── auth.model.ts                   # Interfaces: LoginCredentials, AuthResponse, etc.
+│   │   ├── notification.model.ts           # Interfaces: Notification, NotificationType
+│   │   └── nav-item.model.ts               # Interface: NavMenuItem
+│   │
+│   ├── services/
+│   │   ├── auth.service.ts                 # Servicio de autenticación y sesión
+│   │   ├── user.service.ts                 # Servicio de gestión de usuarios
+│   │   └── notification.service.ts         # Servicio de notificaciones
+│   │
+│   └── mocks/
+│       ├── auth.mock.ts                    # Datos mock para autenticación
+│       ├── user.mock.ts                    # Datos mock de usuarios
+│       └── notification.mock.ts            # Datos mock de notificaciones
 │
 ├── shared/                                  # Componentes reutilizables
 │   ├── components/
 │   │   ├── atoms/
-│   │   │   ├── button/
-│   │   │   ├── input/
-│   │   │   ├── icon/
 │   │   │   └── avatar/
+│   │   │       ├── avatar.component.ts
+│   │   │       ├── avatar.component.html
+│   │   │       └── avatar.component.css
+│   │   │
 │   │   ├── molecules/
-│   │   │   ├── form-field/
 │   │   │   ├── user-info/
-│   │   │   └── notification-badge/
+│   │   │   │   ├── user-info.component.ts
+│   │   │   │   ├── user-info.component.html
+│   │   │   │   └── user-info.component.css
+│   │   │   │
+│   │   │   ├── notification-bell/
+│   │   │   │   ├── notification-bell.component.ts
+│   │   │   │   ├── notification-bell.component.html
+│   │   │   │   └── notification-bell.component.css
+│   │   │   │
+│   │   │   ├── nav-item/
+│   │   │   │   ├── nav-item.component.ts
+│   │   │   │   ├── nav-item.component.html
+│   │   │   │   └── nav-item.component.css
+│   │   │   │
+│   │   │   └── dashboard-card/
+│   │   │       ├── dashboard-card.component.ts
+│   │   │       ├── dashboard-card.component.html
+│   │   │       └── dashboard-card.component.css
+│   │   │
 │   │   └── organisms/
 │   │       ├── header/
+│   │       │   ├── header.component.ts
+│   │       │   ├── header.component.html
+│   │       │   └── header.component.css
+│   │       │
 │   │       ├── sidebar/
-│   │       └── navigation-menu/
-│   └── directives/
-│       └── auto-focus.directive.ts
+│   │       │   ├── sidebar.component.ts
+│   │       │   ├── sidebar.component.html
+│   │       │   └── sidebar.component.css
+│   │       │
+│   │       └── nav-menu/
+│   │           ├── nav-menu.component.ts
+│   │           ├── nav-menu.component.html
+│   │           └── nav-menu.component.css
+│   │
+│   ├── directives/
+│   ├── pipes/
+│   └── utils/
 │
-├── layouts/
-│   ├── auth-layout/
-│   └── main-layout/
+├── layouts/                                 # Layouts de la aplicación
+│   ├── main-layout/
+│   │   ├── main-layout.component.ts
+│   │   ├── main-layout.component.html
+│   │   └── main-layout.component.css
+│   │
+│   └── auth-layout/
+│       ├── auth-layout.component.ts
+│       ├── auth-layout.component.html
+│       └── auth-layout.component.css
 │
-├── features/
+├── features/                                # Módulos por funcionalidad
 │   ├── auth/
 │   │   ├── components/
 │   │   │   └── login-form/
+│   │   │       ├── login-form.component.ts
+│   │   │       ├── login-form.component.html
+│   │   │       └── login-form.component.css
+│   │   │
 │   │   ├── pages/
 │   │   │   └── login/
+│   │   │       ├── login.component.ts
+│   │   │       ├── login.component.html
+│   │   │       └── login.component.css
+│   │   │
 │   │   └── auth.routes.ts
+│   │
 │   └── dashboard/
 │       ├── components/
-│       │   ├── welcome-widget/
-│       │   ├── quick-actions/
-│       │   └── recent-activity/
+│       │   ├── quick-stats/
+│       │   ├── recent-activity/
+│       │   └── quick-actions/
+│       │
 │       ├── pages/
 │       │   └── welcome/
+│       │       ├── welcome.component.ts
+│       │       ├── welcome.component.html
+│       │       └── welcome.component.css
+│       │
 │       └── dashboard.routes.ts
 │
-├── app.component.ts
-├── app.component.html
-├── app.component.css
-├── app.config.ts
-└── app.routes.ts
+├── app.routes.ts                            # Configuración principal de rutas
+├── app.config.ts                            # Configuración de la aplicación
+├── app.ts                                   # Componente raíz
+└── app.html                                 # Template raíz
 ```
 
 ---
 
-## 4. Capa de Servicios (Intermediaria con Backend)
+## 4. Componentes Detallados
 
-### 4.1. Diagrama de Flujo de Datos
+### 4.1. Tabla Resumen de Componentes
 
-```mermaid
-sequenceDiagram
-    participant C as Componente
-    participant S as Service (Auth/Api)
-    participant I as Interceptor
-    participant B as Backend API
-    
-    C->>S: Llamada al servicio
-    S->>I: HTTP Request
-    I->>I: Añade Bearer Token
-    I->>B: Request con Authorization
-    B->>B: Valida OAuth Token
-    B-->>I: Response / Error
-    I->>I: Maneja errores globales
-    I-->>S: Response procesada
-    S-->>C: Datos / Error
-```
+| Componente | Tipo | Responsabilidad | Reutilizable | Ubicación | Deps Material |
+|------------|------|-----------------|--------------|-----------|---------------|
+| Avatar | Atom | Avatar circular usuario | Sí | `shared/components/atoms/avatar/` | mat-icon |
+| UserInfo | Molecule | Info usuario + menú | Sí | `shared/components/molecules/user-info/` | mat-menu, mat-icon, mat-button |
+| NotificationBell | Molecule | Notificaciones con badge | Sí | `shared/components/molecules/notification-bell/` | mat-badge, mat-menu, mat-icon |
+| NavItem | Molecule | Item navegación | Sí | `shared/components/molecules/nav-item/` | mat-icon, mat-ripple |
+| DashboardCard | Molecule | Tarjeta dashboard | Sí | `shared/components/molecules/dashboard-card/` | mat-card |
+| Header | Organism | Cabecera principal | Sí | `shared/components/organisms/header/` | mat-toolbar |
+| Sidebar | Organism | Menú lateral | Sí | `shared/components/organisms/sidebar/` | mat-sidenav |
+| NavMenu | Organism | Menú de navegación | Sí | `shared/components/organisms/nav-menu/` | mat-nav-list |
+| MainLayout | Template | Layout principal | Sí | `layouts/main-layout/` | mat-sidenav-container |
+| AuthLayout | Template | Layout autenticación | Sí | `layouts/auth-layout/` | - |
+| LoginForm | Component | Formulario login | No | `features/auth/components/login-form/` | mat-form-field, mat-input, mat-button |
+| LoginPage | Page | Página login | No | `features/auth/pages/login/` | - |
+| WelcomePage | Page | Dashboard bienvenida | No | `features/dashboard/pages/welcome/` | mat-grid-list |
 
-### 4.2. Servicios Principales
+### 4.2. Header Component (Organism)
 
-#### AuthService
-- **Ubicación:** `src/app/core/services/auth.service.ts`
-- **Responsabilidad:** Gestión completa de autenticación OAuth 2.0
-- **Métodos clave:**
-  - `login(credentials)`: Autenticación con email/password
-  - `logout()`: Cierre de sesión
-  - `getToken()`: Obtener token actual
-  - `refreshToken()`: Renovar token expirado
-  - `isAuthenticated()`: Estado de autenticación (Signal)
+**Responsabilidad**: Cabecera fija en la parte superior con logo, notificaciones e información del usuario.
 
-#### ApiService
-- **Ubicación:** `src/app/core/services/api.service.ts`
-- **Responsabilidad:** Servicio base para todas las llamadas HTTP
-- **Métodos:**
-  - `get<T>(endpoint, options?)`
-  - `post<T>(endpoint, body, options?)`
-  - `put<T>(endpoint, body, options?)`
-  - `patch<T>(endpoint, body, options?)`
-  - `delete<T>(endpoint, options?)`
+**Props/Inputs**: Ninguno (consume servicios directamente)
 
-#### StorageService
-- **Ubicación:** `src/app/core/services/storage.service.ts`
-- **Responsabilidad:** Abstracción de localStorage
-- **Métodos:**
-  - `setItem(key, value)`
-  - `getItem(key)`
-  - `removeItem(key)`
-  - `clear()`
+**Events/Outputs**: Ninguno (gestiona navegación internamente)
 
-#### NavigationService
-- **Ubicación:** `src/app/core/services/navigation.service.ts`
-- **Responsabilidad:** Gestión de items del menú de navegación
-- **Métodos:**
-  - `getNavigationItems()`: Items del menú
-  - `getNavigationItemsByRole(roles)`: Filtrado por roles
-
----
-
-## 5. Interceptores HTTP
-
-### 5.1. AuthInterceptor
-
-**Propósito:** Añadir automáticamente el token Bearer a todas las peticiones HTTP
-
-**Ubicación:** `src/app/core/interceptors/auth.interceptor.ts`
-
-**Comportamiento:**
-1. Intercepta cada petición HTTP saliente
-2. Obtiene token del `AuthService`
-3. Si existe token y no es petición a `/auth/login`, añade header:
-   ```
-   Authorization: Bearer {token}
-   ```
-4. Permite que la petición continúe
-
-### 5.2. ErrorInterceptor
-
-**Propósito:** Manejo centralizado de errores HTTP
-
-**Ubicación:** `src/app/core/interceptors/error.interceptor.ts`
-
-**Manejo de errores:**
-- **401 Unauthorized**: Cierra sesión automáticamente y redirige a login
-- **403 Forbidden**: Muestra mensaje de permisos insuficientes
-- **404 Not Found**: Recurso no encontrado
-- **500 Server Error**: Error interno del servidor
-- **Otros**: Mensaje genérico de error
-
----
-
-## 6. Guards de Rutas
-
-### 6.1. AuthGuard
-
-**Propósito:** Proteger rutas que requieren autenticación
-
-**Ubicación:** `src/app/core/guards/auth.guard.ts`
-
-**Lógica:**
+**Código TypeScript**:
 ```typescript
-if (usuario autenticado) {
-  return true; // Permite acceso
-} else {
-  redirect a /auth/login;
-  return false; // Bloquea acceso
-}
-```
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
-**Uso en rutas:**
-```typescript
-{
-  path: 'dashboard',
-  canActivate: [authGuard],
-  loadChildren: () => import('./features/dashboard/dashboard.routes')
-}
-```
+import { UserInfoComponent } from '../../molecules/user-info/user-info.component';
+import { NotificationBellComponent } from '../../molecules/notification-bell/notification-bell.component';
+import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
-### 6.2. NoAuthGuard
-
-**Propósito:** Proteger rutas públicas (evitar acceso si ya está autenticado)
-
-**Ubicación:** `src/app/core/guards/no-auth.guard.ts`
-
-**Lógica:**
-```typescript
-if (usuario NO autenticado) {
-  return true; // Permite acceso a login
-} else {
-  redirect a /dashboard;
-  return false; // Ya está autenticado, no necesita login
-}
-```
-
----
-
-## 7. Modelos de Datos
-
-### 7.1. User
-
-```typescript
-export interface User {
-  id: string;
-  email: string;
-  nombre: string;
-  apellido: string;
-  avatar?: string;
-  roles: string[];
-  fechaCreacion: Date;
-  ultimoAcceso?: Date;
-}
-```
-
-### 7.2. AuthResponse
-
-```typescript
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken?: string;
-  tokenType: string;  // "Bearer"
-  expiresIn: number;  // segundos
-  user: User;
-}
-
-export interface LoginCredentials {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
-}
-```
-
-### 7.3. NavigationItem
-
-```typescript
-export interface NavigationItem {
-  id: string;
-  label: string;
-  icon: string;
-  route: string;
-  order: number;
-  requiredRoles?: string[];
-  badge?: number;  // Para mostrar contador
-  children?: NavigationItem[];
-}
-```
-
----
-
-## 8. Configuración de Rutas
-
-### 8.1. app.routes.ts (Principal)
-
-**Archivo:** `src/app/app.routes.ts`
-
-Configuración principal del sistema de rutas de Angular con lazy loading y guards.
-
-### 8.2. Estructura de Rutas
-
-```
-/ (root)
-├── '' → redirect '/dashboard'
-├── auth/
-│   ├── login
-│   └── [futuro: registro, recuperar-password]
-├── dashboard/ (protected)
-│   └── '' → Welcome Page
-├── jugadores/ (protected)
-│   └── [futuro]
-├── partidos/ (protected)
-│   └── [futuro]
-├── rankings/ (protected)
-│   └── [futuro]
-├── reservas/ (protected)
-│   └── [futuro]
-└── perfil/ (protected)
-    └── [futuro]
-```
-
-### 8.3. Estrategia de Carga
-
-- **Lazy Loading**: Todos los módulos de features se cargan bajo demanda
-- **Guards**: Aplicados a nivel de ruta padre
-- **Layouts**: Cada grupo de rutas usa su layout correspondiente
-
----
-
-## 9. Layouts
-
-### 9.1. AuthLayout
-
-**Propósito:** Layout minimalista para páginas de autenticación
-
-**Ubicación:** `src/app/layouts/auth-layout/`
-
-**Estructura:**
-```html
-<div class="auth-layout">
-  <div class="auth-layout__content">
-    <div class="auth-layout__logo">
-      <!-- Logo PadelMixer -->
-    </div>
-    <router-outlet></router-outlet>
-  </div>
-</div>
-```
-
-**Características:**
-- Centrado en pantalla
-- Sin navegación ni cabecera
-- Fondo personalizado
-- Responsive
-
-### 9.2. MainLayout
-
-**Propósito:** Layout principal con las 3 zonas (cabecera, sidebar, contenido)
-
-**Ubicación:** `src/app/layouts/main-layout/`
-
-**Estructura:**
-```html
-<div class="main-layout">
-  <app-header class="main-layout__header"></app-header>
-  
-  <div class="main-layout__body">
-    <app-sidebar class="main-layout__sidebar"></app-sidebar>
-    
-    <main class="main-layout__content">
-      <router-outlet></router-outlet>
-    </main>
-  </div>
-</div>
-```
-
-**CSS Grid Layout:**
-```css
-.main-layout {
-  display: grid;
-  grid-template-rows: 60px 1fr;
-  grid-template-columns: 250px 1fr;
-  height: 100vh;
-}
-
-.main-layout__header {
-  grid-row: 1;
-  grid-column: 1 / -1;
-}
-
-.main-layout__sidebar {
-  grid-row: 2;
-  grid-column: 1;
-}
-
-.main-layout__content {
-  grid-row: 2;
-  grid-column: 2;
-  overflow-y: auto;
-}
-```
-
----
-
-## 10. Componentes Clave
-
-### 10.1. Header Component
-
-**Tipo:** Organism  
-**Ubicación:** `src/app/shared/components/organisms/header/`
-
-**Responsabilidad:**
-- Mostrar logo del portal
-- Mostrar información del usuario actual
-- Badge de notificaciones
-- Menú desplegable con opciones (Mi Perfil, Configuración, Cerrar Sesión)
-
-**Props (Inputs):**
-- Ninguno (usa
+@Component({
+  selector: 'app-header',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    UserInfoComponent,
+    Notification
